@@ -1,4 +1,4 @@
-package com.reserva.hoteles.controllers.models;
+package com.reserva.hoteles.Dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse {
-    private String token;
-    private String username;
+public class AuthenticationRequest {
+    private String email;
+    private String password;
 }

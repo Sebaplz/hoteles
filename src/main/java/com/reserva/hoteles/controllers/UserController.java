@@ -1,8 +1,8 @@
 package com.reserva.hoteles.controllers;
 
-import com.reserva.hoteles.controllers.models.AuthResponse;
-import com.reserva.hoteles.controllers.models.AuthenticationRequest;
-import com.reserva.hoteles.controllers.models.RegisterRequest;
+import com.reserva.hoteles.Dto.AuthResponse;
+import com.reserva.hoteles.Dto.AuthenticationRequest;
+import com.reserva.hoteles.Dto.RegisterRequest;
 import com.reserva.hoteles.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
