@@ -27,6 +27,10 @@ public class User implements UserDetails {
     private Long id;
     @NotBlank(message = "Username no puede estar vacio!")
     private String username;
+    @NotBlank(message = "FirstName no puede estar vacio!")
+    private String firstName;
+    @NotBlank(message = "LastName no puede estar vacio!")
+    private String lastName;
     @Column(unique = true)
     @NotBlank(message = "Email no puede estar vacio!")
     @Email(message = "El email no es valido!")
