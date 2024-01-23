@@ -10,11 +10,15 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AdvertisementRequest {
-    private String title;
+    private String status;
+    private String addressExtended;
     private String description;
     private String address;
     private BigDecimal pricePerNight;
     private String imageUrl;
     private String email;
+    private int numOfPersons;
+    private int numOfBedrooms;
+    private int numOfBathrooms;
 
 }

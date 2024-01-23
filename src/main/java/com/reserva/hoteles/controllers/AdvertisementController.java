@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/advertisements")
+@CrossOrigin(origins = "${CORS_ORIGIN}")
 public class AdvertisementController {
     @Autowired
     private AdvertisementService advertisementService;
@@ -23,9 +24,13 @@ public class AdvertisementController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Advertisement> getAdvertisementById(@PathVariable Long id) {
-        Advertisement advertisement = advertisementService.getAdvertisementById(id);
-        return new ResponseEntity<>(advertisement, HttpStatus.OK);
+    public ResponseEntity<AdvertisementResponse> getAdvertisementById(@PathVariable Long id) {
+        AdvertisementResponse advertisementResponse = advertisementService.getAdvertisementResponseById(id);
+        if (advertisementResponse != null) {
+            return new ResponseEntity<>(advertisementResponse, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("/create")
@@ -39,15 +44,15 @@ public class AdvertisementController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Advertisement> updateAdvertisement(@PathVariable Long id, @RequestBody AdvertisementRequest request) {
-        Advertisement updated = advertisementService.updateAdvertisement(id, request);
-        if (updated != null) {
-            return new ResponseEntity<>(updated, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+//    @PutMapping("/{id}")
+//    public ResponseEntity<Advertisement> updateAdvertisement(@PathVariable Long id, @RequestBody AdvertisementRequest request) {
+//        Advertisement updated = advertisementService.updateAdvertisement(id, request);
+//        if (updated != null) {
+//            return new ResponseEntity<>(updated, HttpStatus.OK);
+//        } else {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAdvertisement(@PathVariable Long id) {

@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AdvertisementService {
 
@@ -24,40 +26,71 @@ public class AdvertisementService {
         return advertisementRepository.findAllAdvertisement(pageable);
     }
 
-    public Advertisement getAdvertisementById(Long id) {
-        return advertisementRepository.findById(id).orElse(null);
-    }
+    public AdvertisementResponse getAdvertisementResponseById(Long id) {
+        Optional<Advertisement> optionalAdvertisement = advertisementRepository.findById(id);
 
-    public Advertisement createAdvertisement(AdvertisementRequest request) {
-        Advertisement newAdvertisement = new Advertisement();
-        newAdvertisement.setTitle(request.getTitle());
-        newAdvertisement.setDescription(request.getDescription());
-        newAdvertisement.setAddress(request.getAddress());
-        newAdvertisement.setPricePerNight(request.getPricePerNight());
-        newAdvertisement.setImageUrl(request.getImageUrl());
-
-        return advertisementRepository.save(newAdvertisement);
-    }
-
-    public Advertisement updateAdvertisement(Long id, AdvertisementRequest updatedAdvertisement) {
-        Advertisement existingAdvertisement = getAdvertisementById(id);
-
-        if (existingAdvertisement != null) {
-            User owner = userRepository.findUserByEmail(updatedAdvertisement.getEmail())
-                    .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con email: " + updatedAdvertisement.getEmail()));
-
-            existingAdvertisement.setTitle(updatedAdvertisement.getTitle());
-            existingAdvertisement.setDescription(updatedAdvertisement.getDescription());
-            existingAdvertisement.setAddress(updatedAdvertisement.getAddress());
-            existingAdvertisement.setPricePerNight(updatedAdvertisement.getPricePerNight());
-            existingAdvertisement.setImageUrl(updatedAdvertisement.getImageUrl());
-            existingAdvertisement.setOwner(owner);
-
-            return advertisementRepository.save(existingAdvertisement);
+        if (optionalAdvertisement.isPresent()) {
+            Advertisement advertisement = optionalAdvertisement.get();
+            return convertToAdvertisementResponse(advertisement);
         }
 
         return null;
     }
+
+    private AdvertisementResponse convertToAdvertisementResponse(Advertisement advertisement) {
+        return AdvertisementResponse.builder()
+                .id(advertisement.getId())
+                .status(advertisement.getStatus())
+                .addressExtended(advertisement.getAddressExtended())
+                .description(advertisement.getDescription())
+                .address(advertisement.getAddress())
+                .pricePerNight(advertisement.getPricePerNight())
+                .imageUrl(advertisement.getImageUrl())
+                .username(advertisement.getOwner().getUserName())
+                .numOfPersons(advertisement.getNumOfPersons())
+                .numOfBedrooms(advertisement.getNumOfBedrooms())
+                .numOfBathrooms(advertisement.getNumOfBathrooms())
+                .build();
+    }
+
+    public Advertisement createAdvertisement(AdvertisementRequest request) {
+        Advertisement newAdvertisement = new Advertisement();
+        newAdvertisement.setStatus(request.getStatus());
+        newAdvertisement.setDescription(request.getDescription());
+        newAdvertisement.setAddress(request.getAddress());
+        newAdvertisement.setAddressExtended(request.getAddressExtended());
+        newAdvertisement.setPricePerNight(request.getPricePerNight());
+        newAdvertisement.setImageUrl(request.getImageUrl());
+        newAdvertisement.setNumOfPersons(request.getNumOfPersons());
+        newAdvertisement.setNumOfBedrooms(request.getNumOfBedrooms());
+        newAdvertisement.setNumOfBathrooms(request.getNumOfBathrooms());
+
+        return advertisementRepository.save(newAdvertisement);
+    }
+
+//    public Advertisement updateAdvertisement(Long id, AdvertisementRequest updatedAdvertisement) {
+//        Advertisement existingAdvertisement = getAdvertisementById(id);
+//
+//        if (existingAdvertisement != null) {
+//            User owner = userRepository.findUserByEmail(updatedAdvertisement.getEmail())
+//                    .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con email: " + updatedAdvertisement.getEmail()));
+//
+//            existingAdvertisement.setStatus(updatedAdvertisement.getStatus());
+//            existingAdvertisement.setDescription(updatedAdvertisement.getDescription());
+//            existingAdvertisement.setAddress(updatedAdvertisement.getAddress());
+//            existingAdvertisement.setAddressExtended(updatedAdvertisement.getAddressExtended());
+//            existingAdvertisement.setPricePerNight(updatedAdvertisement.getPricePerNight());
+//            existingAdvertisement.setImageUrl(updatedAdvertisement.getImageUrl());
+//            existingAdvertisement.setNumOfPersons(updatedAdvertisement.getNumOfPersons());
+//            existingAdvertisement.setNumOfBedrooms(updatedAdvertisement.getNumOfBedrooms());
+//            existingAdvertisement.setNumOfBathrooms(updatedAdvertisement.getNumOfBathrooms());
+//            existingAdvertisement.setOwner(owner);
+//
+//            return advertisementRepository.save(existingAdvertisement);
+//        }
+//
+//        return null;
+//    }
 
     public void deleteAdvertisement(Long id) {
         advertisementRepository.deleteById(id);

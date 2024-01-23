@@ -16,11 +16,15 @@ public class Advertisement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String title;
+    private String status;
     private String description;
     private String address;
+    private String addressExtended;
     private BigDecimal pricePerNight;
     private String imageUrl;
+    private int numOfPersons;
+    private int numOfBedrooms;
+    private int numOfBathrooms;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")

@@ -9,8 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 
 public interface AdvertisementRepository extends JpaRepository<Advertisement, Long> {
-    @Query("SELECT new com.reserva.hoteles.Dto.AdvertisementResponse(a.id, a.title, a.description, a.address, a.pricePerNight, a.imageUrl) FROM Advertisement a")
+    @Query("SELECT new com.reserva.hoteles.Dto.AdvertisementResponse(a.id, a.status, a.description, a.address, a.pricePerNight, a.imageUrl) FROM Advertisement a")
     Page<AdvertisementResponse> findAllAdvertisement(Pageable pageable);
-
 
 }
