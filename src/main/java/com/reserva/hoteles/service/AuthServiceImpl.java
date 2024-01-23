@@ -1,9 +1,9 @@
 package com.reserva.hoteles.service;
 
 import com.reserva.hoteles.config.JwtService;
-import com.reserva.hoteles.controllers.models.AuthResponse;
-import com.reserva.hoteles.controllers.models.AuthenticationRequest;
-import com.reserva.hoteles.controllers.models.RegisterRequest;
+import com.reserva.hoteles.Dto.AuthResponse;
+import com.reserva.hoteles.Dto.AuthenticationRequest;
+import com.reserva.hoteles.Dto.RegisterRequest;
 import com.reserva.hoteles.entity.Role;
 import com.reserva.hoteles.entity.User;
 import com.reserva.hoteles.repository.UserRepository;
@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService{
                 .build();
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
-        return AuthResponse.builder().token(jwtToken).build();
+        return AuthResponse.builder().token(jwtToken).username(user.getUserName()).username(user.getUsername()).build();
     }
 
     @Override
@@ -44,6 +44,6 @@ public class AuthServiceImpl implements AuthService{
         );
         var user = userRepository.findUserByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
-        return AuthResponse.builder().token(jwtToken).username(user.getUserName()).build();
+        return AuthResponse.builder().token(jwtToken).username(user.getUserName()).username(user.getUsername()).build();
     }
 }
