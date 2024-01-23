@@ -7,11 +7,15 @@ import com.reserva.hoteles.Dto.RegisterRequest;
 import com.reserva.hoteles.entity.Role;
 import com.reserva.hoteles.entity.User;
 import com.reserva.hoteles.repository.UserRepository;
+import com.reserva.hoteles.exceptions.EmailAlreadyExistsException;
+import com.reserva.hoteles.exceptions.EmailNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,28 +26,43 @@ public class AuthServiceImpl implements AuthService{
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+
+
     @Override
     public AuthResponse register(RegisterRequest request) {
-        var user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
-                .build();
-        userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return AuthResponse.builder().token(jwtToken).username(user.getUserName()).username(user.getUsername()).build();
+        Optional<User> existUser = userRepository.findUserByEmail(request.getEmail());
+        if (existUser.isPresent()) {
+            throw new EmailAlreadyExistsException("El correo electrónico ya está registrado");
+        } else {
+            var user = User.builder()
+                    .username(request.getUsername())
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(Role.USER)
+                    .build();
+            userRepository.save(user);
+            var jwtToken = jwtService.generateToken(user);
+            return AuthResponse.builder().token(jwtToken).username(user.getUserName()).email(user.getEmail()).rol(user.getRole().name()).build();
+        }
     }
 
     @Override
     public AuthResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword())
-        );
-        var user = userRepository.findUserByEmail(request.getEmail()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        return AuthResponse.builder().token(jwtToken).username(user.getUserName()).username(user.getUsername()).build();
+        Optional<User> userOptional = userRepository.findUserByEmail(request.getEmail());
+
+        if (userOptional.isPresent()) {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword())
+            );
+            User user = userOptional.get();
+            var jwtToken = jwtService.generateToken(user);
+            return AuthResponse.builder().token(jwtToken).username(user.getUserName()).email(user.getEmail()).rol(user.getRole().name()).build();
+        } else {
+            throw new EmailNotFoundException("El correo electrónico no está registrado");
+        }
     }
 }
