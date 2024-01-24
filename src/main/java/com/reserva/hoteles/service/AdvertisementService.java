@@ -74,7 +74,7 @@ public class AdvertisementService {
                 Advertisement savedAdvertisement = advertisementRepository.save(newAdvertisement);
                 return AdvertisementResponse.builder().id(savedAdvertisement.getId()).message("Guardado con éxito!").build();
             } catch (Exception e) {
-                return AdvertisementResponse.builder().error("Error al guardar!").build();
+                return AdvertisementResponse.builder().error("Error al guardar! La dirección ya esta en uso!").build();
             }
         }
         return AdvertisementResponse.builder().error("No se ha podido agregar, porque el usuario no era valido!").build();
