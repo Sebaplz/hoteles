@@ -2,6 +2,7 @@ package com.reserva.hoteles.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Advertisement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +21,7 @@ public class Advertisement {
     private String status;
     private String description;
     private String address;
+    @Column(unique = true)
     private String addressExtended;
     private BigDecimal pricePerNight;
     private String imageUrl;

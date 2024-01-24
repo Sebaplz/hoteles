@@ -6,7 +6,6 @@ import com.reserva.hoteles.entity.Advertisement;
 import com.reserva.hoteles.entity.User;
 import com.reserva.hoteles.repository.AdvertisementRepository;
 import com.reserva.hoteles.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,14 +45,15 @@ public class AdvertisementService {
                 .address(advertisement.getAddress())
                 .pricePerNight(advertisement.getPricePerNight())
                 .imageUrl(advertisement.getImageUrl())
-                .username(advertisement.getOwner().getUserName())
+                .firstName(advertisement.getOwner().getFirstName())
+                .lastName(advertisement.getOwner().getLastName())
                 .numOfPersons(advertisement.getNumOfPersons())
                 .numOfBedrooms(advertisement.getNumOfBedrooms())
                 .numOfBathrooms(advertisement.getNumOfBathrooms())
                 .build();
     }
 
-    public Advertisement createAdvertisement(AdvertisementRequest request) {
+    public AdvertisementResponse createAdvertisement(AdvertisementRequest request) {
         Advertisement newAdvertisement = new Advertisement();
         newAdvertisement.setStatus(request.getStatus());
         newAdvertisement.setDescription(request.getDescription());
@@ -65,32 +65,49 @@ public class AdvertisementService {
         newAdvertisement.setNumOfBedrooms(request.getNumOfBedrooms());
         newAdvertisement.setNumOfBathrooms(request.getNumOfBathrooms());
 
-        return advertisementRepository.save(newAdvertisement);
+        Optional<User> optionalUser = userRepository.findUserByEmail(request.getEmail());
+
+        if (optionalUser.isPresent()) {
+            newAdvertisement.setOwner(optionalUser.get());
+
+            try {
+                Advertisement savedAdvertisement = advertisementRepository.save(newAdvertisement);
+                return AdvertisementResponse.builder().id(savedAdvertisement.getId()).message("Guardado con éxito!").build();
+            } catch (Exception e) {
+                return AdvertisementResponse.builder().error("Error al guardar!").build();
+            }
+        }
+        return AdvertisementResponse.builder().error("No se ha podido agregar, porque el usuario no era valido!").build();
     }
 
-//    public Advertisement updateAdvertisement(Long id, AdvertisementRequest updatedAdvertisement) {
-//        Advertisement existingAdvertisement = getAdvertisementById(id);
-//
-//        if (existingAdvertisement != null) {
-//            User owner = userRepository.findUserByEmail(updatedAdvertisement.getEmail())
-//                    .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con email: " + updatedAdvertisement.getEmail()));
-//
-//            existingAdvertisement.setStatus(updatedAdvertisement.getStatus());
-//            existingAdvertisement.setDescription(updatedAdvertisement.getDescription());
-//            existingAdvertisement.setAddress(updatedAdvertisement.getAddress());
-//            existingAdvertisement.setAddressExtended(updatedAdvertisement.getAddressExtended());
-//            existingAdvertisement.setPricePerNight(updatedAdvertisement.getPricePerNight());
-//            existingAdvertisement.setImageUrl(updatedAdvertisement.getImageUrl());
-//            existingAdvertisement.setNumOfPersons(updatedAdvertisement.getNumOfPersons());
-//            existingAdvertisement.setNumOfBedrooms(updatedAdvertisement.getNumOfBedrooms());
-//            existingAdvertisement.setNumOfBathrooms(updatedAdvertisement.getNumOfBathrooms());
-//            existingAdvertisement.setOwner(owner);
-//
-//            return advertisementRepository.save(existingAdvertisement);
-//        }
-//
-//        return null;
-//    }
+
+    public AdvertisementResponse updateAdvertisement(Long id, AdvertisementRequest updatedAdvertisement) {
+        Optional<Advertisement> optionalExistingAdvertisement = advertisementRepository.findById(id);
+        Optional<User> optionalUser = userRepository.findUserByEmail(updatedAdvertisement.getEmail());
+
+        if (optionalExistingAdvertisement.isPresent() && optionalUser.isPresent()) {
+            Advertisement existingAdvertisement = optionalExistingAdvertisement.get();
+            User owner = optionalUser.get();
+
+            existingAdvertisement.setStatus(updatedAdvertisement.getStatus());
+            existingAdvertisement.setDescription(updatedAdvertisement.getDescription());
+            existingAdvertisement.setAddress(updatedAdvertisement.getAddress());
+            existingAdvertisement.setAddressExtended(updatedAdvertisement.getAddressExtended());
+            existingAdvertisement.setPricePerNight(updatedAdvertisement.getPricePerNight());
+            existingAdvertisement.setImageUrl(updatedAdvertisement.getImageUrl());
+            existingAdvertisement.setNumOfPersons(updatedAdvertisement.getNumOfPersons());
+            existingAdvertisement.setNumOfBedrooms(updatedAdvertisement.getNumOfBedrooms());
+            existingAdvertisement.setNumOfBathrooms(updatedAdvertisement.getNumOfBathrooms());
+            existingAdvertisement.setOwner(owner);
+
+            advertisementRepository.save(existingAdvertisement);
+            return AdvertisementResponse.builder().message("Alojamiento actualizado!").build();
+        }
+
+        return AdvertisementResponse.builder().error("Alojamiento o usuario no encontrado!").build();
+    }
+
+
 
     public void deleteAdvertisement(Long id) {
         advertisementRepository.deleteById(id);
