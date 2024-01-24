@@ -6,6 +6,7 @@ import com.reserva.hoteles.entity.Advertisement;
 import com.reserva.hoteles.entity.User;
 import com.reserva.hoteles.repository.AdvertisementRepository;
 import com.reserva.hoteles.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,14 @@ public class AdvertisementService {
     public Page<AdvertisementResponse> getAllAdvertisements(Pageable pageable) {
         return advertisementRepository.findAllAdvertisement(pageable);
     }
+
+    public Page<AdvertisementResponse> getAllAdvertisementResponseByUserEmail(String email, Pageable pageable) {
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con email: " + email));
+
+        return advertisementRepository.findAllAdvertisementByOwner(user, pageable);
+    }
+
 
     public AdvertisementResponse getAdvertisementResponseById(Long id) {
         Optional<Advertisement> optionalAdvertisement = advertisementRepository.findById(id);
@@ -107,10 +116,20 @@ public class AdvertisementService {
         return AdvertisementResponse.builder().error("Alojamiento o usuario no encontrado!").build();
     }
 
+    public AdvertisementResponse deleteAdvertisement(Long id) {
+        Optional<Advertisement> optionalAdvertisement = advertisementRepository.findById(id);
+        if (optionalAdvertisement.isEmpty()) {
+            return AdvertisementResponse.builder().error("El anuncio no existe.").build();
+        }
 
+        Advertisement advertisement = optionalAdvertisement.get();
 
-    public void deleteAdvertisement(Long id) {
-        advertisementRepository.deleteById(id);
+        try {
+            advertisementRepository.deleteById(advertisement.getId());
+            return AdvertisementResponse.builder().message("Anuncio eliminado con éxito.").build();
+        } catch (Exception e) {
+            return AdvertisementResponse.builder().message("Error al eliminar el anuncio.").build();
+        }
     }
 
 }

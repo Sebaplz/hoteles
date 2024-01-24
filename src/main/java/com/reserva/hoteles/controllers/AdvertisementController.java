@@ -23,6 +23,11 @@ public class AdvertisementController {
         return advertisementService.getAllAdvertisements(pageable);
     }
 
+    @GetMapping("/my/advertisements")
+    public Page<AdvertisementResponse> getAllAdvertisementByEmail(@RequestParam String email, Pageable pageable) {
+        return advertisementService.getAllAdvertisementResponseByUserEmail(email, pageable);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AdvertisementResponse> getAdvertisementById(@PathVariable Long id) {
         AdvertisementResponse advertisementResponse = advertisementService.getAdvertisementResponseById(id);
@@ -53,9 +58,13 @@ public class AdvertisementController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteAdvertisement(@PathVariable Long id) {
-        advertisementService.deleteAdvertisement(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<?> deleteAdvertisement(@PathVariable("id") Long id) {
+        try{
+            AdvertisementResponse delete = advertisementService.deleteAdvertisement(id);
+            return ResponseEntity.ok(delete);
+        } catch (SaveErrorException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(AdvertisementResponse.builder().error(e.getMessage()).build());
+        }
     }
 }

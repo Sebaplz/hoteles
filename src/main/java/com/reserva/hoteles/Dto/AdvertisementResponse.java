@@ -50,4 +50,14 @@ public class AdvertisementResponse {
         this.pricePerNight = pricePerNight;
         this.imageUrl = imageUrl;
     }
+
+    public AdvertisementResponse(Long id, String status, String addressExtended, String description, String address, BigDecimal pricePerNight, String imageUrl) {
+        this.id = id;
+        this.status = status;
+        this.addressExtended = addressExtended;
+        this.description = description;
+        this.address = address;
+        this.pricePerNight = pricePerNight;
+        this.imageUrl = imageUrl;
+    }
 }
