@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "${CORS_ORIGIN}")
+@CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
 
     @Autowired

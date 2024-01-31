@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/advertisements")
-@CrossOrigin(origins = "${CORS_ORIGIN}")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AdvertisementController {
     @Autowired
     private AdvertisementService advertisementService;
